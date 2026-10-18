@@ -369,6 +369,21 @@ void FlushInstanced() {
     glUniform1i(locInstanced, 1);
     glUniform4f(locColor, 1, 1, 1, 1);
     for (const InstCmd& c : instCmds) {
+        // GL 3.3 kennt keinen baseInstance-Parameter (glDrawArraysInstanced
+        // startet immer bei Instanz 0). Daher muessen die Instanz-Attribute pro
+        // Kommando auf den Start der jeweiligen Instanzen (instFirst) zeigen -
+        // sonst liest jedes Kommando ab Instanz 0 und mehrere Instancing-Draws
+        // vermischen sich.
+        const GLsizei instOffset =
+            static_cast<GLsizei>(c.instFirst) * 20 * static_cast<GLsizei>(sizeof(float));
+        for (int k = 0; k < 4; k++) {
+            const GLuint loc = static_cast<GLuint>(locInstModel + k);
+            glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, iStride,
+                                  reinterpret_cast<const void*>(instOffset + k * 4 * sizeof(float)));
+        }
+        glVertexAttribPointer(static_cast<GLuint>(locInstColor), 4, GL_FLOAT, GL_FALSE, iStride,
+                              reinterpret_cast<const void*>(instOffset + 16 * sizeof(float)));
+
         glUniformMatrix4fv(locView, 1, GL_FALSE, c.view.data());
         glUniformMatrix4fv(locProjection, 1, GL_FALSE, c.proj.data());
         glUniform1i(locMode, EffectToMode(c.effect));
