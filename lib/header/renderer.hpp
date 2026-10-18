@@ -143,6 +143,12 @@ void SetBatchSort(bool on);
 // CompactBatch sortiert (falls aktiviert) und fasst die Pending-Batch zusammen.
 void CompactBatch();
 
+// FlushBatch zeichnet die gesammelten Primitives (und Instancing-Auftraege)
+// sofort aus. Normalerweise geschieht das automatisch am Frame-Ende; ein
+// Aufruf mitten im Frame erlaubt es, die Zeichenreihenfolge bewusst zu trennen
+// (z. B. transparente Debug-Overlays erst nach der opaken Welt zu zeichnen).
+void FlushBatch();
+
 // SetGradientCenter setzt das Zentrum fuer den Gradient-Effekt.
 void SetGradientCenter(double cx, double cy, double cz, double radius);
 

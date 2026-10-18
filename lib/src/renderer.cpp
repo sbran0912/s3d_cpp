@@ -412,58 +412,6 @@ void FlushInstanced() {
     instCmds.clear();
 }
 
-// FlushBatch zeichnet alle gesammelten Primitives des Frames mit einem
-// einzigen wiederverwendbaren VBO.
-void FlushBatch() {
-    if (batchCmds.empty() && instCmds.empty()) {
-        return;
-    }
-
-    CompactBatch();
-
-    glUniform1i(locInstanced, 0);
-
-    glBindVertexArray(vao);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-    const int byteLen = static_cast<int>(batchVerts.size() * sizeof(float));
-    if (byteLen > batchCap) {
-        glBufferData(GL_ARRAY_BUFFER, byteLen, batchVerts.data(), GL_DYNAMIC_DRAW);
-        batchCap = byteLen;
-    } else {
-        glBufferSubData(GL_ARRAY_BUFFER, 0, byteLen, batchVerts.data());
-    }
-
-    glEnableVertexAttribArray(static_cast<GLuint>(locPos));
-    glEnableVertexAttribArray(static_cast<GLuint>(locColorAttr));
-    const GLsizei stride = 7 * static_cast<GLsizei>(sizeof(float));
-    glVertexAttribPointer(static_cast<GLuint>(locPos), 3, GL_FLOAT, GL_FALSE, stride, nullptr);
-    glVertexAttribPointer(static_cast<GLuint>(locColorAttr), 4, GL_FLOAT, GL_FALSE, stride,
-                          reinterpret_cast<const void*>(3 * sizeof(float)));
-
-    for (const DrawCmd& c : batchCmds) {
-        glUniformMatrix4fv(locView, 1, GL_FALSE, c.view.data());
-        glUniformMatrix4fv(locProjection, 1, GL_FALSE, c.proj.data());
-        glUniform1i(locMode, EffectToMode(c.effect));
-        glUniform1i(locLighted, c.lit);
-        glUniform4f(locColor, static_cast<float>(c.col.R), static_cast<float>(c.col.G),
-                    static_cast<float>(c.col.B), static_cast<float>(c.col.A));
-        glUniform4f(locColor2, static_cast<float>(c.grad2.R), static_cast<float>(c.grad2.G),
-                    static_cast<float>(c.grad2.B), static_cast<float>(c.grad2.A));
-        glUniform1f(locPointSize, static_cast<float>(c.pointSize));
-        glUniform3f(locCenter, static_cast<float>(c.center[0]),
-                    static_cast<float>(c.center[1]), static_cast<float>(c.center[2]));
-        glUniform1f(locRadius, static_cast<float>(c.radius));
-        glLineWidth(static_cast<float>(c.lineW));
-        glDrawArrays(c.mode, c.first, c.count);
-    }
-
-    batchVerts.clear();
-    batchCmds.clear();
-
-    FlushInstanced();
-}
-
 // =================================================================
 // MAUS / FENSTER (intern)
 // =================================================================
@@ -515,6 +463,65 @@ void OnFramebufferSize(GLFWwindow* /*win*/, int width, int height) {
 }
 
 } // namespace
+
+// =================================================================
+// OEFFENTLICHE API - BATCH
+// =================================================================
+
+// FlushBatch zeichnet alle gesammelten Primitives des Frames mit einem
+// einzigen wiederverwendbaren VBO und anschliessend die Instancing-Auftraege.
+// Normalerweise am Frame-Ende aufgerufen (siehe StartAnimation); ein Aufruf
+// mitten im Frame erlaubt es, die Zeichenreihenfolge bewusst zu trennen (z. B.
+// transparente Debug-Overlays erst nach der opaken Welt zu zeichnen).
+void FlushBatch() {
+    if (batchCmds.empty() && instCmds.empty()) {
+        return;
+    }
+
+    CompactBatch();
+
+    glUniform1i(locInstanced, 0);
+
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+    const int byteLen = static_cast<int>(batchVerts.size() * sizeof(float));
+    if (byteLen > batchCap) {
+        glBufferData(GL_ARRAY_BUFFER, byteLen, batchVerts.data(), GL_DYNAMIC_DRAW);
+        batchCap = byteLen;
+    } else {
+        glBufferSubData(GL_ARRAY_BUFFER, 0, byteLen, batchVerts.data());
+    }
+
+    glEnableVertexAttribArray(static_cast<GLuint>(locPos));
+    glEnableVertexAttribArray(static_cast<GLuint>(locColorAttr));
+    const GLsizei stride = 7 * static_cast<GLsizei>(sizeof(float));
+    glVertexAttribPointer(static_cast<GLuint>(locPos), 3, GL_FLOAT, GL_FALSE, stride, nullptr);
+    glVertexAttribPointer(static_cast<GLuint>(locColorAttr), 4, GL_FLOAT, GL_FALSE, stride,
+                          reinterpret_cast<const void*>(3 * sizeof(float)));
+
+    for (const DrawCmd& c : batchCmds) {
+        glUniformMatrix4fv(locView, 1, GL_FALSE, c.view.data());
+        glUniformMatrix4fv(locProjection, 1, GL_FALSE, c.proj.data());
+        glUniform1i(locMode, EffectToMode(c.effect));
+        glUniform1i(locLighted, c.lit);
+        glUniform4f(locColor, static_cast<float>(c.col.R), static_cast<float>(c.col.G),
+                    static_cast<float>(c.col.B), static_cast<float>(c.col.A));
+        glUniform4f(locColor2, static_cast<float>(c.grad2.R), static_cast<float>(c.grad2.G),
+                    static_cast<float>(c.grad2.B), static_cast<float>(c.grad2.A));
+        glUniform1f(locPointSize, static_cast<float>(c.pointSize));
+        glUniform3f(locCenter, static_cast<float>(c.center[0]),
+                    static_cast<float>(c.center[1]), static_cast<float>(c.center[2]));
+        glUniform1f(locRadius, static_cast<float>(c.radius));
+        glLineWidth(static_cast<float>(c.lineW));
+        glDrawArrays(c.mode, c.first, c.count);
+    }
+
+    batchVerts.clear();
+    batchCmds.clear();
+
+    FlushInstanced();
+}
 
 // =================================================================
 // BATCH-SAMMEL-HELFER (siehe renderer_internal.hpp)

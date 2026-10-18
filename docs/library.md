@@ -516,6 +516,12 @@ DrawMeshInstanced(cubeMesh, cubeStyle, cubes); // EIN Draw-Call für alle
 > Beim Instancing wird die Farbe aus dem `ShapeStyle` ignoriert; sie kommt
 > aus jeder `Instance`.
 
+> **Zeichenreihenfolge:** Instancing-Draws werden – unabhängig von der
+> Aufrufreihenfolge – nach den Immediate-Primitiven ausgegeben. Wer die
+> Reihenfolge bewusst trennen will (z. B. transparente Debug-Overlays erst
+> nach der opaken Welt), ruft `FlushBatch()` mitten im Frame auf (siehe
+> Abschnitt 9).
+
 ### 5.3 Low-Level-Zustand und Effekte
 
 Die `Draw*`-Fassade ist nur eine bequeme Hülle über Low-Level-Primitiven,
@@ -674,6 +680,8 @@ Weitere vollständige Beispiele liegen unter `apps/`:
 `beispiel` (Meshes + Szenenrotation), `vorlage` (Body + Gitter),
 `instanzen` (GPU-Instancing), `ray` (Body-Faces + Raycasting + Effekte),
 `boids` (Schwarm mit Vehicle/Steering),
+`vehic` (Fahrzeug-Schwarm mit DNA/Seek, GPU-Instancing für Futter und
+Fahrzeuge),
 `rocket` (wie `boids`, aber die Vehicles sind ein **geladenes** OBJ aus
 `apps/rocket/rocket.obj`; Hindernis-Würfel und Gitter bleiben prozedural).
 
@@ -688,6 +696,10 @@ Weitere vollständige Beispiele liegen unter `apps/`:
 - **Batching:** Alle `Draw*`-Aufrufe eines Frames werden gesammelt und am
   Frame-Ende automatisch gezeichnet. `Background(...)` zeichnet den Batch
   vorher aus (nicht mitten im Frame aufrufen, außer gewollt).
+- **`FlushBatch()`:** zeichnet den aktuellen Batch sofort aus (normalerweise
+  geschieht das automatisch am Frame-Ende). Ein Aufruf mitten im Frame trennt
+  die Zeichenreihenfolge, z. B. um transparente Debug-Overlays erst nach der
+  opaken Welt zu zeichnen.
 - **`SetBatchSort(true)`** nur für opake Geometrie (ändert die
   Zeichenreihenfolge; Blending wäre dann nicht korrekt sortiert).
 - **Kamera:** `Target` ist nur eine Richtungsangabe, keine Position – die

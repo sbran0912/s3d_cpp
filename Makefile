@@ -46,7 +46,7 @@ LIB_OBJS := $(patsubst lib/src/%.cpp,$(BUILD)/lib/%.o,$(LIB_SRCS))
 # --- Apps -----------------------------------------------------------
 # Jede App ist ein Unterordner apps/<name>/ und darf mehrere .cpp enthalten
 # (z. B. main.cpp + vehicle.cpp); alle werden gebaut und zusammen gelinkt.
-APP_NAMES := beispiel vorlage instanzen ray boids rocket
+APP_NAMES := beispiel vorlage instanzen ray boids rocket vehic
 APP_BINS  := $(addprefix $(BIN)/,$(APP_NAMES))
 APP_SRCS  := $(wildcard apps/*/*.cpp)
 APP_OBJS  := $(patsubst apps/%.cpp,$(BUILD)/apps/%.o,$(APP_SRCS))

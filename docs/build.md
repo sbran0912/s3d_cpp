@@ -17,6 +17,7 @@ Bibliothek `lib/lib3d.a` und linkt daraus die Anwendungen in `apps/`.
 │   └── header/       alle Header (*.hpp) der Bibliothek
 ├── apps/             Anwendungen, je App ein Unterordner
 │   ├── boids/        main.cpp + vehicle.hpp/vehicle.cpp (mehrere Quellen)
+│   ├── vehic/        main.cpp + vehicle.hpp/vehicle.cpp (Instancing + DNA)
 │   ├── rocket/       main.cpp + vehicle.hpp/vehicle.cpp + rocket.obj (Mesh-Asset)
 │   ├── ray/main.cpp
 │   ├── vorlage/main.cpp
@@ -59,7 +60,7 @@ Makefile steht (siehe unten).
 | `make clean` | Löscht `build/`, `bin/` und `lib/lib3d.a`. |
 
 Verfügbare App-Namen (aus `APP_NAMES` im Makefile):
-`beispiel`, `vorlage`, `instanzen`, `ray`, `boids`, `rocket`.
+`beispiel`, `vorlage`, `instanzen`, `ray`, `boids`, `rocket`, `vehic`.
 
 Die App `rocket` (basiert auf `boids`) lädt ihr Vehicle-Mesh zur Laufzeit aus
 `rocket.obj` (Wavefront-OBJ, siehe `docs/library.md`, Abschnitt 4.3). Das OBJ
