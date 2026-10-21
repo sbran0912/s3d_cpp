@@ -65,9 +65,7 @@ struct Body {
     Mesh geometry;      // Zeichengeometrie (lokal)
     vector<Face> faces; // lokale Faces (inkl. Normalen)
     Vec3 pos;
-    double rotX = 0;
-    double rotY = 0;
-    double rotZ = 0;
+    Vec3 rot; // Rotation um X, Y, Z (rad)
 
     // ModelMatrix ist die Modellmatrix (Translation * Rotation).
     Matrix4x4 ModelMatrix() const;
@@ -79,5 +77,4 @@ struct Body {
 // MakeBody erzeugt einen Body aus einem Mesh. Die Faces werden automatisch
 // aus der Geometrie ermittelt (Single Source of Truth). Farbe und
 // Linienbreite kommen beim Zeichnen ueber den ShapeStyle (DrawMesh).
-Body MakeBody(const Mesh& geometry, const Vec3& pos, double rotX = 0,
-              double rotY = 0, double rotZ = 0);
+Body MakeBody(const Mesh& geometry, const Vec3& pos, const Vec3& rot = {});

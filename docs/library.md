@@ -326,15 +326,14 @@ struct Body {
     Mesh         Geometry;   // Zeichengeometrie (lokal)
     vector<Face> Faces;      // lokale Faces inkl. Normalen
     Vec3         Pos;
-    double       RotX = 0, RotY = 0, RotZ = 0;
+    Vec3         rot;        // Rotation um X, Y, Z (rad)
 
     Matrix4x4     ModelMatrix() const; // Translation * Rotation
     vector<Face>  WorldFaces() const;  // Faces in Weltkoordinaten
 };
 
 // Faces werden automatisch aus der Geometrie ermittelt (Single Source of Truth):
-Body MakeBody(const Mesh& geometry, const Vec3& pos,
-              double rotX = 0, double rotY = 0, double rotZ = 0);
+Body MakeBody(const Mesh& geometry, const Vec3& pos, const Vec3& rot = {});
 ```
 
 ```cpp
@@ -345,7 +344,7 @@ double angle = 0;
 auto draw = [&]() {
     BeginScene(scene);
     angle += 0.01;
-    ballBody.RotY = angle;                        // Body drehen
+    ballBody.rot.y = angle;                       // Body drehen
     DrawMesh(ballBody.Geometry, ballStyle,        // Rendern wie ohne Body
              ballBody.ModelMatrix());             // Körper-Transform nutzen
 };
@@ -363,7 +362,7 @@ TransformFaces(body.Faces, body.ModelMatrix()); // lokale Faces -> Welt
 | | ohne Body | mit Body |
 | --- | --- | --- |
 | Typ | `Mesh` | `Body` (enthält `Mesh`) |
-| Erzeugen | `Make*Mesh(...)` | `MakeBody(mesh, pos, rotX, rotY, rotZ)` |
+| Erzeugen | `Make*Mesh(...)` | `MakeBody(mesh, pos, rot)` |
 | Zeichnen | `DrawMesh(mesh, style, model)` | `DrawMesh(body.Geometry, style, body.ModelMatrix())` |
 | Rotation | Modell-Matrix | `body.RotX/RotY/RotZ` + `ModelMatrix()` |
 | Kollision/Raycast | nicht möglich | `body.Faces`, `body.WorldFaces()`, `RaycastSegment` |

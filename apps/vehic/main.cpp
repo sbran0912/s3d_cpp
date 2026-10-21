@@ -64,8 +64,7 @@ int main() {
     // um die Position zentrieren.
     constexpr double vehicleBase = 6.0;
     constexpr double vehicleHeight = 12.0;
-    const Mesh vehicleMesh =
-        CenterMeshY(MakePyramidMesh(vehicleBase, vehicleHeight), -vehicleHeight / 2);
+    const Mesh vehicleMesh = CenterMeshY(MakePyramidMesh(vehicleBase, vehicleHeight), -vehicleHeight / 2);
 
     // Instanz-Farben.
     const ColorState poisonColor = ParseHex("#FF0000");
@@ -111,8 +110,9 @@ int main() {
 
         // Fahrzeuge simulieren (rueckwaerts, damit Entfernen beim Iterieren ok
         // ist).
-        for (int i = static_cast<int>(vehicles.size()) - 1; i >= 0; i--) {
-            Vehicle& v = vehicles[static_cast<size_t>(i)];
+        for (size_t i = vehicles.size(); i > 0; i--) {
+            size_t idx = i-1;
+            Vehicle& v = vehicles[idx];
 
             v.boundary();
             food = v.eatFood(food, false);   // gutes Futter
@@ -125,7 +125,7 @@ int main() {
             }
 
             if (v.isDead()) {
-                vehicles.erase(vehicles.begin() + i);
+                vehicles.erase(vehicles.begin() + idx);
             }
         }
 
